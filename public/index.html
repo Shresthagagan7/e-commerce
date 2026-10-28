@@ -1,0 +1,212 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suranjana Fancy Gallery | Artisanal Collections</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h1>SURANJANA</h1>
+            <span>FANCY GALLERY</span>
+        </div>
+        <div class="nav-links">
+            <a href="#">Collections</a>
+            <div id="user-nav" style="display: inline-block;">
+                <a href="#" onclick="showAuthModal('login')" id="login-link">Login</a>
+                <a href="#" onclick="showProfile()" id="profile-link" style="display:none;">My Account</a>
+                <a href="#" onclick="showAdminPanel()" id="admin-link" style="display:none; color: red; font-weight: bold;">Admin Panel</a>
+            </div>
+            <a href="#" onclick="showTrackModal()" style="color: var(--accent); font-weight: bold;">Track Order</a>
+            <div class="cart-icon" onclick="toggleCart()" style="cursor: pointer;">
+                Cart (<span id="cart-count">0</span>)
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h2>Suranjana Fancy Gallery</h2>
+            <p>What do you need</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="filter-bar">
+            <div class="categories">
+                <button class="filter-btn active" onclick="filterProducts('all')">All</button>
+                <button class="filter-btn" onclick="filterProducts('Girls')">Girls Wear</button>
+                <button class="filter-btn" onclick="filterProducts('Kids')">Kids Wear</button>
+                <button class="filter-btn" onclick="filterProducts('sub-Kurtha')">Kurtha</button>
+                <button class="filter-btn" onclick="filterProducts('sub-Frock')">Frock</button>
+            </div>
+            
+            <div class="advanced-filters">
+                <input type="text" id="searchInput" placeholder="Search clothes..." oninput="applyFilters()">
+                
+                <select id="sizeFilter" onchange="applyFilters()">
+                    <option value="">All Sizes</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                </select>
+
+                <select id="colorFilter" onchange="applyFilters()">
+                    <option value="">All Colors</option>
+                    <option value="Red">Red</option>
+                    <option value="Blue">Blue</option>
+                    <option value="White">White</option>
+                    <option value="Pink">Pink</option>
+                </select>
+
+                <input type="number" id="priceFilter" placeholder="Max Price (Rs.)" oninput="applyFilters()">
+            </div>
+        </section>
+        <div id="product-grid" class="product-grid">
+            <!-- Products injected by JS -->
+        </div>
+    </main>
+
+    <!-- Shopping Cart Sidebar -->
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Shopping Bag</h3>
+            <button onclick="toggleCart()" class="close-btn">&times;</button>
+        </div>
+        <div id="cart-items" class="cart-items"></div>
+        <div class="cart-footer">
+            <div class="total">Total: Rs. <span id="cart-total">0</span></div>
+            <button class="checkout-btn" onclick="showCheckout()">Checkout Now</button>
+        </div>
+    </div>
+
+    <!-- Simple Checkout Modal -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <h3>Order Details</h3>
+            <form id="checkout-form">
+                <input type="text" name="name" placeholder="Full Name" required>
+                <input type="tel" name="phone" placeholder="Phone Number" required>
+                <textarea name="address" placeholder="Delivery Address" required></textarea>
+                
+                <div class="payment-methods">
+                    <p><strong>Payment Method:</strong></p>
+                    <label><input type="radio" name="payment" value="Cash on Delivery" checked> Cash on Delivery (COD)</label>
+                    <label><input type="radio" name="payment" value="eSewa / Khalti"> eSewa / Khalti</label>
+                    <label><input type="radio" name="payment" value="Bank Transfer"> Bank Transfer</label>
+                </div>
+
+                <p>Total Amount: Rs. <span id="checkout-total">0</span></p>
+                <button type="submit" class="add-btn">Confirm Order</button>
+                <button type="button" class="filter-btn" style="width:100%; margin-top:10px" onclick="closeCheckout()">Back to Shop</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Tracking Modal -->
+    <div id="track-modal" class="modal">
+        <div class="modal-content">
+            <h3>Track Your Order</h3>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <input type="text" id="trackIdInput" placeholder="Enter Order ID (e.g. ORD-1234)" style="flex-grow: 1; padding: 10px; border: 1px solid #ddd;">
+                <button onclick="trackOrder()" class="add-btn" style="margin-top: 0; width: auto;">Track</button>
+            </div>
+            <div id="track-result" style="text-align: left; padding: 10px; background: #f9f9f9; display: none;">
+                <!-- Results show here -->
+            </div>
+            <button type="button" class="filter-btn" style="width:100%; margin-top:10px" onclick="closeTrackModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Auth Modal (Login/Signup) -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="auth-title">Login</h3>
+            <form id="auth-form">
+                <div id="signup-fields" style="display:none;">
+                    <input type="text" id="reg-name" placeholder="Full Name">
+                    <input type="tel" id="reg-phone" placeholder="Phone Number">
+                    <textarea id="reg-address" placeholder="Default Delivery Address"></textarea>
+                </div>
+                <input type="email" id="auth-email" placeholder="Email" required>
+                <input type="password" id="auth-pass" placeholder="Password" required>
+                <button type="submit" class="add-btn" id="auth-submit">Login</button>
+                <p style="text-align:center; font-size:0.9rem; margin-top:10px;">
+                    <span id="auth-switch-text">Don't have an account?</span> 
+                    <a href="#" onclick="toggleAuthMode()" id="auth-switch-link" style="color:var(--primary); font-weight:bold;">Sign Up</a>
+                </p>
+                <button type="button" class="filter-btn" style="width:100%; margin-top:10px" onclick="closeAuthModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>My Profile</h3>
+                <button onclick="logout()" class="filter-btn" style="margin:0; padding:5px 15px;">Logout</button>
+            </div>
+            <div id="user-info" style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 5px;">
+                <!-- User details show here -->
+            </div>
+            <h4>Recent Orders</h4>
+            <div id="order-history" style="max-height: 250px; overflow-y: auto;">
+                <!-- History show here -->
+            </div>
+            <button type="button" class="add-btn" style="width:100%; margin-top:15px" onclick="closeProfileModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="admin-modal" class="modal">
+        <div class="modal-content" style="max-width: 900px; width: 95%;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>Admin Dashboard ⚙️</h3>
+                <button onclick="closeAdminPanel()" class="close-btn">&times;</button>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="filter-btn active" onclick="switchAdminTab('products')">Products</button>
+                <button class="filter-btn" onclick="switchAdminTab('orders')">Orders</button>
+            </div>
+
+            <div id="admin-products-tab">
+                <h4>Add New Product</h4>
+                <form id="add-product-form" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
+                    <input type="text" id="p-name" placeholder="Name" required>
+                    <input type="number" id="p-price" placeholder="Price" required>
+                    <input type="text" id="p-cat" placeholder="Category (Girls/Kids)" required>
+                    <input type="text" id="p-sub" placeholder="Sub-Cat (Kurtha/Frock)" required>
+                    <input type="text" id="p-sizes" placeholder="Sizes (e.g. S, M, L)" required>
+                    <input type="text" id="p-color" placeholder="Color" required>
+                    <input type="number" id="p-stock" placeholder="Initial Stock" required>
+                    <div style="grid-column: span 2;">
+                        <label>Product Photo (Upload):</label>
+                        <input type="file" id="p-image-file" accept="image/*" style="margin-bottom: 5px;">
+                        <input type="text" id="p-image" placeholder="Or paste Image URL (Optional)">
+                    </div>
+                    <button type="submit" class="add-btn" style="grid-column: span 2;">Add Product</button>
+                </form>
+                <div id="admin-product-list" style="max-height: 300px; overflow-y: auto; border-top: 1px solid #ddd;">
+                    <!-- Editable list of products -->
+                </div>
+            </div>
+
+            <div id="admin-orders-tab" style="display:none;">
+                <h4>All Customer Orders</h4>
+                <div id="admin-order-list" style="max-height: 400px; overflow-y: auto;">
+                    <!-- List of all orders -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
